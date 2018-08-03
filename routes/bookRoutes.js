@@ -1,5 +1,6 @@
 const express = require('express');
-
+const sql = require('mssql');
+const debug = require('debug')('app:bookRoutes');
 const bookRouter = express.Router();
 
 function router(nav) {
@@ -52,13 +53,17 @@ function router(nav) {
       author: 'Lev Nikolayevich Tolstoy',
       read: false
     }];
-  /* GET home page. */
   bookRouter.get('/', (req, res) => {
-    res.render('Books/bookListView', {
-      title: 'Books Page - NodeJS App with Auth - By Ali Shaikh',
-      books,
-      nav
-    });
+    const request = new sql.Request();
+    request.query('select * from Books')
+      .then((result) => {
+        debug(result);
+        res.render('Books/bookListView', {
+          title: 'Books Page - NodeJS App with Auth - By Ali Shaikh',
+          books: result.recordset,
+          nav
+        });
+      });
   });
   bookRouter.get('/:id', (req, res) => {
     const { id } = req.params;

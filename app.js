@@ -5,11 +5,23 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const sassMiddleware = require('node-sass-middleware');
 const dotenv = require('dotenv');
+const debug = require('debug')('app');
+const sql = require('mssql');
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
  */
 dotenv.load({ path: '.env.example' });
 
+const config = {
+  user: 'sa',
+  password: 'xoho@123',
+  server: 'localhost', // You can use 'localhost\\instance' to connect to named instance
+  database: 'NodeLibrary',
+
+  options: {
+    encrypt: true // Use this if you're on Windows Azure
+  }
+};
 /**
  * Set NavBar Menus and Links
  */
@@ -23,6 +35,9 @@ const nav = [{
   link: '/issues',
   title: 'Issues',
 }];
+
+sql.connect(config)
+  .catch(err => (debug(err)));
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
