@@ -5,16 +5,29 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const sassMiddleware = require('node-sass-middleware');
 const dotenv = require('dotenv');
-
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
  */
 dotenv.load({ path: '.env.example' });
 
+/**
+ * Set NavBar Menus and Links
+ */
+const nav = [{
+  link: '/books',
+  title: 'Books'
+}, {
+  link: '/authors',
+  title: 'Authors'
+}, {
+  link: '/issues',
+  title: 'Issues',
+}];
+
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
-const issuesRouter = require('./routes/issues');
-const booksRouter = require('./routes/bookRoutes');
+const issuesRouter = require('./routes/issueRoutes')(nav);
+const booksRouter = require('./routes/bookRoutes')(nav);
 
 const app = express();
 
