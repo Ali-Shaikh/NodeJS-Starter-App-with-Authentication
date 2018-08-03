@@ -2,10 +2,14 @@ const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
-const chalk = require('chalk');
 const logger = require('morgan');
-const debug = require('debug');
 const sassMiddleware = require('node-sass-middleware');
+const dotenv = require('dotenv');
+
+/**
+ * Load environment variables from .env file, where API keys and passwords are configured.
+ */
+dotenv.load({ path: '.env.example' });
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -16,20 +20,23 @@ const app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.use(logger('dev'));
+app.use(logger('tiny'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(sassMiddleware({
   src: path.join(__dirname, 'public'),
   dest: path.join(__dirname, 'public'),
-  indentedSyntax: true, // true = .sass and false = .scss
+  outputStyle: 'compressed',
+  debug: true,
+  indentedSyntax: false, // true = .sass and false = .scss
   sourceMap: true,
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/js/lib', express.static(path.join(__dirname, 'node_modules/popper.js/dist/umd'), { maxAge: 31557600000 }));
 app.use('/js/lib', express.static(path.join(__dirname, 'node_modules/bootstrap/dist/js'), { maxAge: 31557600000 }));
 app.use('/js/lib', express.static(path.join(__dirname, 'node_modules/jquery/dist'), { maxAge: 31557600000 }));
+app.use('/webfonts', express.static(path.join(__dirname, 'node_modules/@fortawesome/fontawesome-free/webfonts'), { maxAge: 31557600000 }));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
