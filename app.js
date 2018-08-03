@@ -13,6 +13,8 @@ dotenv.load({ path: '.env.example' });
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
+const issuesRouter = require('./routes/issues');
+const booksRouter = require('./routes/bookRoutes');
 
 const app = express();
 
@@ -39,6 +41,9 @@ app.use('/js/lib', express.static(path.join(__dirname, 'node_modules/jquery/dist
 app.use('/webfonts', express.static(path.join(__dirname, 'node_modules/@fortawesome/fontawesome-free/webfonts'), { maxAge: 31557600000 }));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/books', booksRouter);
+app.use('/issues', issuesRouter);
+app.use('/issues/single', issuesRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
