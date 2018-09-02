@@ -16,19 +16,25 @@ function router(nav) {
       });
     }());
   });
-  bookRouter.get('/:id', (req, res) => {
-    (async function query() {
-      const { id } = req.params;
-      const request = new sql.Request();
-      const { recordset } = await request.input('ID', sql.Int, id)
-        .query('select * from Books where ID = @id');
+  bookRouter.route('/:id')
+    .all((req, res, next) => {
+      (async function query() {
+        const { id } = req.params;
+        const request = new sql.Request();
+        const { recordset } = await request.input('ID', sql.Int, id)
+          .query('select * from Books where ID = @id');
+        req.book = recordset[0];
+        // [req.book] = recordset;
+        next();
+      }());
+    })
+    .get((req, res) => {
       res.render('Books/bookView', {
-        title: 'Books Page - NodeJS App with Auth - By Ali Shaikh',
-        book: recordset[0],
+        title: 'Book Details Page - NodeJS App with Auth - By Ali Shaikh',
+        book: req.book,
         nav
       });
-    }());
-  });
+    });
   return bookRouter;
 }
 
