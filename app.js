@@ -7,10 +7,15 @@ const sassMiddleware = require('node-sass-middleware');
 const dotenv = require('dotenv');
 const debug = require('debug')('app');
 const sql = require('mssql');
+const Raven = require('raven');
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
  */
 dotenv.load({ path: '.env.example' });
+
+// Must configure Raven before doing anything else with it
+Raven.config('http://be9f4ddbc47f4a3fb50f73e0c8c02b1e@207.154.219.104/3')
+  .install();
 
 const config = {
   user: 'sa',
@@ -46,9 +51,13 @@ const booksRouter = require('./routes/bookRoutes')(nav);
 
 const app = express();
 
+// The request handler must be the first middleware on the app
+app.use(Raven.requestHandler());
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+
 
 app.use(logger('tiny'));
 app.use(express.json());
@@ -72,6 +81,17 @@ app.use('/users', usersRouter);
 app.use('/books', booksRouter);
 app.use('/issues', issuesRouter);
 app.use('/issues/single', issuesRouter);
+
+// The error handler must be before any other error middleware
+app.use(Raven.errorHandler());
+
+// Optional fallthrough error handler
+app.use(function onError(err, req, res, next) {
+  // The error id is attached to `res.sentry` to be returned
+  // and optionally displayed to the user for support.
+  res.statusCode = 500;
+  res.end(res.sentry + '\n');
+});
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

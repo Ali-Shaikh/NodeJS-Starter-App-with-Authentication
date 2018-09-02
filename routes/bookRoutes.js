@@ -1,6 +1,7 @@
 const express = require('express');
 const sql = require('mssql');
 const debug = require('debug')('app:bookRoutes');
+const Raven = require('raven');
 
 const bookRouter = express.Router();
 
